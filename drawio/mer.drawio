@@ -1,0 +1,60 @@
+<mxfile host="65bd71144e">
+    <diagram name="MER - Clinica Medica" id="brzClinic-er-diagram">
+        <mxGraphModel dx="540" dy="787" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="paciente" value="&lt;b&gt;PACIENTE&lt;/b&gt;&lt;hr&gt;PK id&lt;br&gt;nome&lt;br&gt;endereco&lt;br&gt;data_nascimento&lt;br&gt;telefone&lt;br&gt;email&lt;br&gt;cpf&lt;br&gt;FK plano_saude_id" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fontFamily=Helvetica;fontSize=12;strokeColor=#333333;fillColor=#f8f9fa;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="90" width="240" height="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="plano" value="&lt;b&gt;PLANO_SAUDE&lt;/b&gt;&lt;hr&gt;PK id&lt;br&gt;nome&lt;br&gt;limite_cobertura&lt;br&gt;data_validade" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fontFamily=Helvetica;fontSize=12;strokeColor=#333333;fillColor=#f8f9fa;" parent="1" vertex="1">
+                    <mxGeometry x="420" y="100" width="240" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="medico" value="&lt;b&gt;MEDICO&lt;/b&gt;&lt;hr&gt;PK id&lt;br&gt;nome&lt;br&gt;especialidade&lt;br&gt;crm" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fontFamily=Helvetica;fontSize=12;strokeColor=#333333;fillColor=#f8f9fa;" parent="1" vertex="1">
+                    <mxGeometry x="780" y="100" width="220" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="consulta" value="&lt;b&gt;CONSULTA&lt;/b&gt;&lt;hr&gt;PK id&lt;br&gt;data_consulta&lt;br&gt;valor&lt;br&gt;FK paciente_id&lt;br&gt;FK medico_id" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fontFamily=Helvetica;fontSize=12;strokeColor=#333333;fillColor=#f8f9fa;" parent="1" vertex="1">
+                    <mxGeometry x="420" y="410" width="240" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="receita" value="&lt;b&gt;RECEITA&lt;/b&gt;&lt;hr&gt;PK id&lt;br&gt;descricao&lt;br&gt;dosagem&lt;br&gt;tempo_tratamento&lt;br&gt;FK consulta_id&lt;br&gt;FK medico_id" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fontFamily=Helvetica;fontSize=12;strokeColor=#333333;fillColor=#f8f9fa;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="670" width="250" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="pagamento" value="&lt;b&gt;PAGAMENTO&lt;/b&gt;&lt;hr&gt;PK id&lt;br&gt;valor&lt;br&gt;data_pagamento&lt;br&gt;FK consulta_id" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=10;fontFamily=Helvetica;fontSize=12;strokeColor=#333333;fillColor=#f8f9fa;" parent="1" vertex="1">
+                    <mxGeometry x="780" y="420" width="230" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-plano-paciente" value="1 possui 0..N" style="endArrow=none;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="plano" target="paciente" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-paciente-consulta" value="1 realiza 0..N" style="endArrow=none;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="paciente" target="consulta" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="540" y="280"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge-medico-consulta" value="1 atende 0..N" style="endArrow=none;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="medico" target="consulta" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="890" y="280"/>
+                            <mxPoint x="540" y="280"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge-consulta-receita" value="1 gera 0..1" style="endArrow=none;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="consulta" target="receita" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-medico-receita" value="1 emite 0..N" style="endArrow=none;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="medico" target="receita" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1030" y="175"/>
+                            <mxPoint x="1030" y="760"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge-consulta-pagamento" value="1 recebe 0..N" style="endArrow=none;html=1;rounded=0;edgeStyle=orthogonalEdgeStyle;" parent="1" source="consulta" target="pagamento" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
