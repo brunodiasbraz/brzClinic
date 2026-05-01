@@ -1,0 +1,12 @@
+# Variaveis de ambiente
+.env
+
+# Anotações e documentos relacionados ao projeto
+/docs
+
+# Arquivo docker para desenvolvimento local
+/docker-compose.yml
+
+# Arquivos para subida da base e tabelas para desenvolvimento local
+/db/database.sql
+/db/run.sh
