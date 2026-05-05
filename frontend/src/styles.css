@@ -196,8 +196,7 @@ h6 {
 
 .metric span,
 .next-card span,
-.report-box span,
-.appointment-item span {
+.report-box span {
   color: var(--muted);
   font-size: 0.9rem;
 }
@@ -212,21 +211,6 @@ h6 {
   gap: 12px;
 }
 
-.appointment-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 140px auto;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--soft);
-}
-
-.appointment-item div {
-  display: grid;
-  gap: 4px;
-}
 
 .modal-content {
   border: 0;
@@ -263,16 +247,11 @@ h6 {
   }
 
   .app-header,
-  .panel-title-row,
-  .appointment-item {
+  .panel-title-row {
     display: grid;
   }
 
   .app-header {
     padding: 22px;
-  }
-
-  .appointment-item {
-    grid-template-columns: 1fr;
   }
 }

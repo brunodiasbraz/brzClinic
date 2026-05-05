@@ -125,7 +125,6 @@ export default function App() {
               <DoctorScreen
                 appointments={appointmentsDoctor}
                 onLogout={goToLogin}
-                selectedDoctor={selectedDoctor}
               />
             ) : (
               <Navigate to="/" replace />

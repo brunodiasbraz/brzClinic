@@ -1,8 +1,8 @@
 export default function StatusBadge({ status }) {
   const variant =
-    status === "Realizada"
+    status.toLowerCase() === "realizada"
       ? "success"
-      : status === "Cancelada"
+      : status.toLowerCase() === "cancelada"
         ? "danger"
         : "primary";
 
