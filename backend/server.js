@@ -79,6 +79,27 @@ app.get("/api/pacientes", asyncHandler(async (_request, response) => {
   response.json(rows);
 }));
 
+app.get("/api/pacientes/:id", asyncHandler(async (request, response) => {
+  const [rows] = await pool.query(`
+    SELECT
+      p.id,
+      p.nome,
+      p.endereco,
+      p.data_nascimento,
+      p.telefone,
+      p.email,
+      p.cpf,
+      ps.nome AS plano_saude
+    FROM paciente p
+    LEFT JOIN plano_saude ps ON ps.id = p.plano_saude_id
+    WHERE p.id = ?
+    ORDER BY p.nome
+  `, [request.params.id]);
+
+  response.json(rows);
+}));
+
+
 app.get("/api/medicos", asyncHandler(async (_request, response) => {
   const [rows] = await pool.query(`
     SELECT id, nome, especialidade, crm
