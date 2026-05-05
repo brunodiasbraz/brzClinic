@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import DoctorScreen from "./pages/DoctorScreen";
 import LoginScreen from "./pages/LoginScreen";
 import PatientScreen from "./pages/PatientScreen";
@@ -23,11 +17,14 @@ export default function App() {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const location = useLocation();
-
-  function addAppointment(appointment) {
-    setAppointments((current) => [appointment, ...current]);
-  }
+  const addAppointment = async (appointment) => {
+    try {
+      await axios.post(`${apiUrl}/consultas`, appointment);
+      setAppointments((current) => [...current, appointment]);
+    } catch (error) {
+      console.error("Erro ao agendar consulta:", error);
+    }
+  };
 
   function goToLogin() {
     setSelectedPacient(null);
@@ -85,17 +82,25 @@ export default function App() {
 
   return (
     <>
-      {location.pathname == "/" && (
-        <Navbar
-          selectedPacient={selectedPacient}
-          setSelectedPacient={setSelectedPacient}
-          selectedDoctor={selectedDoctor}
-          setSelectedDoctor={setSelectedDoctor}
-        />
-      )}
+      {}
+      <Navbar
+        selectedPacient={selectedPacient}
+        setSelectedPacient={setSelectedPacient}
+        selectedDoctor={selectedDoctor}
+        setSelectedDoctor={setSelectedDoctor}
+        goToLogin={goToLogin}
+      />
 
       <Routes>
-        <Route path="/" element={<LoginScreen />} />
+        <Route
+          path="/"
+          element={
+            <LoginScreen
+              selectedDoctor={selectedDoctor}
+              selectedPacient={selectedPacient}
+            />
+          }
+        />
 
         <Route
           path="/paciente"

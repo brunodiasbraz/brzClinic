@@ -131,17 +131,12 @@ h6 {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 28px;
-  color: #fff;
-  background: var(--primary);
-  border-radius: 8px;
-  box-shadow: var(--shadow);
+  padding: 15px 0;
 }
 
 .app-header p:last-child {
   max-width: 680px;
-  margin: 12px 0 0;
-  color: rgba(255, 255, 255, 0.82);
+  margin: 5px 0 0;
 }
 
 .content-grid {
