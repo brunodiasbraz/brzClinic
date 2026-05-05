@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
+import NewPacientModal from "./NewPacientModal";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -112,12 +113,17 @@ export default function Navbar({
             </select>
           </div>
         </div>
-        {location.pathname !== "/" && (
+        {location.pathname !== "/" ? (
           <button type="button" className="btn btn-light" onClick={goToLogin}>
             Logout
           </button>
+        ): (
+          <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPacientModal">
+            + Novo Paciente
+          </button>
         )}
       </div>
+      <NewPacientModal />
     </nav>
   );
 }

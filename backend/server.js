@@ -184,6 +184,25 @@ app.get("/api/medicos/:id/consultas", asyncHandler(async (request, response) => 
   response.json(rows.map(mapConsulta));
 }));
 
+app.post("/api/pacientes", asyncHandler(async (request, response) => {
+  const {
+    nome, endereco, data_nascimento, telefone, email, cpf, plano_saude_id
+  } = request.body;
+
+  if (!nome || !endereco || !data_nascimento || !telefone || !email || !cpf) {
+    return response.status(400).json({
+      message: "Informe todos os campos obrigatórios."
+    });
+  }
+
+  const [result] = await pool.execute(`
+    INSERT INTO paciente (nome, endereco, data_nascimento, telefone, email, cpf, plano_saude_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `, [nome, endereco, data_nascimento, telefone, email, cpf, plano_saude_id]);
+
+  response.status(201).json(result.insertId ? { id: result.insertId } : { message: "Paciente criado com sucesso." });
+}));
+
 app.post("/api/consultas", asyncHandler(async (request, response) => {
   const {
     paciente_id,
@@ -256,6 +275,16 @@ app.get("/api/relatorios/financeiro", asyncHandler(async (_request, response) =>
       valor_total_pago: Number(consulta.valor_total_pago)
     }))
   });
+}));
+
+app.get("/api/planos-saude", asyncHandler(async (_request, response) => {
+  const [rows] = await pool.query(`
+    SELECT *
+    FROM plano_saude
+    ORDER BY nome
+  `);
+
+  response.json(rows);
 }));
 
 if (existsSync(frontendDistPath)) {
