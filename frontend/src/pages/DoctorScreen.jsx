@@ -2,7 +2,7 @@ import Header from "../components/Header";
 import StatusBadge from "../components/StatusBadge";
 import { formatCurrency, formatDate } from "../utils/formatters";
 
-export default function DoctorScreen({ appointments, onLogout, selectedDoctor }) {
+export default function DoctorScreen({ appointments, selectedDoctor }) {
 
   const doctorAppointments = appointments.filter(
     (appointment) => appointment.id === selectedDoctor
@@ -22,7 +22,6 @@ export default function DoctorScreen({ appointments, onLogout, selectedDoctor })
       <Header
         title="Area do médico"
         subtitle="Visualize proximas consultas e relatorios de atendimento."
-        onLogout={onLogout}
       />
 
       <section className="content-grid">

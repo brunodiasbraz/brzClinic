@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function LoginScreen() {
+export default function LoginScreen({ selectedPacient, selectedDoctor }) {
   return (
     <>
       <main className="login-page">
@@ -20,12 +20,32 @@ export default function LoginScreen() {
             </p>
 
             <div className="profile-actions">
-              <Link className="btn btn-primary btn-lg" to="/paciente">
-                Entrar como paciente
-              </Link>
-              <Link className="btn btn-outline-primary btn-lg" to="/medico">
-                Entrar como medico
-              </Link>
+              {!selectedPacient ? (
+                <div className="alert alert-warning" role="alert">
+                  Selecione um <strong>paciente</strong> no topo da tela para
+                  continuar
+                </div>
+              ) : (
+                <Link
+                  className={`btn btn-primary btn-lg ${!selectedPacient ? "disabled opacity-50" : ""}`}
+                  to={selectedPacient ? "/paciente" : "#"}
+                >
+                  Entrar como paciente
+                </Link>
+              )}
+              {!selectedDoctor ? (
+                <div className="alert alert-warning mt-3" role="alert">
+                  Selecione um <strong>médico</strong> no topo da tela para
+                  continuar
+                </div>
+              ) : (
+                <Link
+                  className={`btn btn-outline-primary btn-lg ${!selectedDoctor ? "disabled opacity-50" : ""}`}
+                  to={selectedDoctor ? "/medico" : "#"}
+                >
+                  Entrar como médico
+                </Link>
+              )}
             </div>
           </div>
         </section>

@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import StatusBadge from "../components/StatusBadge";
 import { formatDate } from "../utils/formatters";
 
-export default function PatientScreen({ appointments, onAddAppointment, onLogout, selectedPacient }) {
+export default function PatientScreen({ appointments, onAddAppointment, selectedPacient }) {
 
   const patientAppointments = appointments.filter(
     (appointment) => appointment.id === selectedPacient
@@ -17,12 +17,21 @@ export default function PatientScreen({ appointments, onAddAppointment, onLogout
     (appointment) => appointment.status === "Realizada"
   );
 
+  const handleScheduleAppointment = (pacientId) => {
+
+    // paciente_id,
+    // medico_id,
+    // data_consulta,
+    // valor = 250,
+    // status = "AGENDADA"
+    
+  }
+
   return (
     <main className="dashboard-page">
       <Header
         title="Area do paciente"
         subtitle="Acompanhe suas consultas e solicite novos agendamentos."
-        onLogout={onLogout}
       />
 
       <section className="content-grid">

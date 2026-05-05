@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -8,9 +9,12 @@ export default function Navbar({
   setSelectedPacient,
   selectedDoctor,
   setSelectedDoctor,
+  goToLogin,
 }) {
   const [pacients, setPacients] = useState([]);
   const [doctors, setDoctors] = useState([]);
+
+  const location = useLocation();
 
   const fetchPacients = async () => {
     try {
@@ -50,8 +54,20 @@ export default function Navbar({
   };
 
   return (
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
+    <nav
+      className="navbar navbar-expand-lg"
+      style={{ backgroundColor: "#ffffff" }}
+    >
       <div className="container-fluid">
+        <a className="navbar-brand" href="#">
+          {" "}
+          <img
+            src="/assets/logos/logo-fundo-branco-lateral.png"
+            alt="logo"
+            width="150"
+            height="auto"
+          />
+        </a>
         <button
           className="navbar-toggler"
           type="button"
@@ -96,6 +112,11 @@ export default function Navbar({
             </select>
           </div>
         </div>
+        {location.pathname !== "/" && (
+          <button type="button" className="btn btn-light" onClick={goToLogin}>
+            Logout
+          </button>
+        )}
       </div>
     </nav>
   );
