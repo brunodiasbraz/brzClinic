@@ -38,8 +38,10 @@ export default function App() {
     if (!pacientId) return;
 
     try {
-      const res = await axios.get(`${apiUrl}/pacientes/${pacientId}/consultas`);
-      setAppointments(res.data);
+      const { data } = await axios.get(
+        `${apiUrl}/pacientes/${pacientId}/consultas`,
+      );
+      setAppointments(data.data);
     } catch (err) {
       console.log("Erro ao buscar consultas:", err);
     }

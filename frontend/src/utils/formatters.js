@@ -18,3 +18,14 @@ export function formatCurrency(value) {
     currency: "BRL"
   }).format(value);
 }
+
+export function formatDateTime(dateTimeValue) {
+  const [datePart, timePart] = dateTimeValue.split(" ");
+  const [year, month, day] = datePart.split("-");
+  const [hour, minute] = timePart.split(":");
+
+  return {
+    date: `${day}/${month}/${year}`,
+    time: `${hour}:${minute}`
+  };
+}

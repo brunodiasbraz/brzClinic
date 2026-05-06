@@ -19,8 +19,8 @@ export default function Navbar({
 
   const fetchPacients = async () => {
     try {
-      const res = await axios.get(`${apiUrl}/pacientes`);
-      setPacients(res.data);
+      const { data } = await axios.get(`${apiUrl}/pacientes`);
+      setPacients(data.data);
     } catch (err) {
       console.log(err);
     }
@@ -28,8 +28,8 @@ export default function Navbar({
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get(`${apiUrl}/medicos`);
-      setDoctors(res.data);
+      const { data } = await axios.get(`${apiUrl}/medicos`);
+      setDoctors(data.data);
     } catch (err) {
       console.log(err);
     }
@@ -43,7 +43,7 @@ export default function Navbar({
   const handleSelectPacient = (e) => {
     const id = Number(e.target.value);
 
-    setSelectedPacient(id); // 🔥 atualiza o App
+    setSelectedPacient(id);
     localStorage.setItem("pacientId", id);
   };
 
@@ -117,8 +117,13 @@ export default function Navbar({
           <button type="button" className="btn btn-light" onClick={goToLogin}>
             Logout
           </button>
-        ): (
-          <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPacientModal">
+        ) : (
+          <button
+            type="button"
+            className="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#newPacientModal"
+          >
             + Novo Paciente
           </button>
         )}

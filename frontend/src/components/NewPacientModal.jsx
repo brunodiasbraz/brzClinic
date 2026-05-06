@@ -20,8 +20,8 @@ export default function NewPacientModal() {
 
   const fetchPlanosSaude = async () => {
     try {
-      const { data } = await axios.get(`${apiUrl}/planos-saude`);
-      setPlanoSaude(data);
+      const { data } = await axios.get(`${apiUrl}/planos`);
+      setPlanoSaude(data.data);
     } catch (error) {
       console.error("Erro ao buscar planos de saúde:", error);
     }
@@ -36,11 +36,11 @@ export default function NewPacientModal() {
     const payload = {
       nome: form.name,
       endereco: form.address,
-      data_nascimento: form.birthDate,
+      dataNascimento: form.birthDate,
       telefone: form.phone,
       email: form.email,
       cpf: form.cpf,
-      plano_saude_id: Number(form.healthPlan),
+      planoSaudeId: Number(form.healthPlan),
     };
     try {
       await axios.post(`${apiUrl}/pacientes`, payload);

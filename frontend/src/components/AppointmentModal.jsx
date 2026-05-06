@@ -62,8 +62,8 @@ export default function AppointmentModal({ appointments, onAddAppointment }) {
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get(`${apiUrl}/medicos`);
-      setDoctors(res.data);
+      const { data } = await axios.get(`${apiUrl}/medicos`);
+      setDoctors(data.data);
     } catch (err) {
       console.log(err);
     }
@@ -71,8 +71,8 @@ export default function AppointmentModal({ appointments, onAddAppointment }) {
 
   const fetchPacientData = async (pacientId) => {
     try {
-      const res = await axios.get(`${apiUrl}/pacientes/${pacientId}`);
-      const pacient = res.data[0];
+      const { data } = await axios.get(`${apiUrl}/pacientes/${pacientId}`);
+      const pacient = data.data;
       updateField("name", pacient.nome);
       updateField("email", pacient.email);
       updateField("phone", pacient.telefone);
@@ -94,7 +94,7 @@ export default function AppointmentModal({ appointments, onAddAppointment }) {
       setMessage({ type: "danger", text: error });
       return;
     }
-    
+
     const appointment = {
       paciente_id: pacientId,
       medico_id: selectedDoctorAppointment
@@ -102,7 +102,7 @@ export default function AppointmentModal({ appointments, onAddAppointment }) {
         : null,
       data_consulta: `${form.date} ${form.time}`,
       valor: 250,
-      status: "AGENDADA"
+      status: "AGENDADA",
     };
 
     onAddAppointment(appointment);

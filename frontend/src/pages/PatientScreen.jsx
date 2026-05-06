@@ -1,27 +1,22 @@
 import AppointmentModal from "../components/AppointmentModal";
 import Header from "../components/Header";
 import StatusBadge from "../components/StatusBadge";
-import { formatCurrency, formatDate } from "../utils/formatters";
+import { formatCurrency, formatDate, formatDateTime } from "../utils/formatters";
 
 export default function PatientScreen({
   appointments,
   onAddAppointment,
-  selectedPacient,
 }) {
-  const patientAppointments = appointments.filter(
-    (appointment) => appointment.patientId === selectedPacient,
-  );
-
-  const scheduled = patientAppointments.filter(
+  const scheduled = appointments.filter(
     (appointment) => appointment.status.toLowerCase() === "agendada",
   );
 
-  const completed = patientAppointments.filter(
+  const completed = appointments.filter(
     (appointment) => appointment.status.toLowerCase() === "realizada",
   );
 
-  const past = patientAppointments.filter((appointment)=>
-    ["realizada", "cancelada"].includes(appointment.status.toLowerCase())
+  const past = appointments.filter((appointment) =>
+    ["realizada", "cancelada"].includes(appointment.status.toLowerCase()),
   );
 
   return (
@@ -56,24 +51,24 @@ export default function PatientScreen({
               >
                 <div className="row align-items-center g-5">
                   <div className="col-12 col-md">
-                    <strong className="d-block">{appointment.doctor}</strong>
+                    <strong className="d-block">{appointment.medico?.nome}</strong>
                     <span className="text-muted small">
-                      {appointment.specialty}
+                      {appointment.medico?.especialidade || "Especialidade não informada"}
                     </span>
                   </div>
 
                   <div className="col-12 col-md-auto text-md-center">
                     <strong className="d-block">Valor</strong>
                     <span className="text-muted small">
-                      {formatCurrency(appointment.value)}
+                      {formatCurrency(appointment.valor)}
                     </span>
                   </div>
 
                   <div className="col-12 col-md-auto text-md-center">
                     <strong className="d-block">
-                      {formatDate(appointment.date)}
+                      {formatDateTime(appointment.data).date}
                     </strong>
-                    <span className="text-muted small">{appointment.time}</span>
+                    <span className="text-muted small">{formatDateTime(appointment.data).time}</span>
                   </div>
 
                   <div className="col-12 col-md-auto text-md-end">
@@ -99,7 +94,7 @@ export default function PatientScreen({
             <span>Proxima consulta</span>
             <strong>
               {scheduled[0]
-                ? `${formatDate(scheduled[0].date)} as ${scheduled[0].time}`
+                ? `${formatDateTime(scheduled[0].data).date} às ${formatDateTime(scheduled[0].data).time}`
                 : "Sem consultas futuras"}
             </strong>
           </div>
@@ -120,24 +115,24 @@ export default function PatientScreen({
               >
                 <div className="row align-items-center g-5">
                   <div className="col-12 col-md">
-                    <strong className="d-block">{appointment.doctor}</strong>
+                    <strong className="d-block">{appointment.medico?.nome}</strong>
                     <span className="text-muted small">
-                      {appointment.specialty}
+                      {appointment.medico?.especialidade || "Especialidade não informada"}
                     </span>
                   </div>
 
                   <div className="col-12 col-md-auto text-md-center">
                     <strong className="d-block">Valor</strong>
                     <span className="text-muted small">
-                      {formatCurrency(appointment.value)}
+                      {formatCurrency(appointment.valor)}
                     </span>
                   </div>
 
                   <div className="col-12 col-md-auto text-md-center">
                     <strong className="d-block">
-                      {formatDate(appointment.date)}
+                      {formatDateTime(appointment.data).date}
                     </strong>
-                    <span className="text-muted small">{appointment.time}</span>
+                    <span className="text-muted small">{formatDateTime(appointment.data).time}</span>
                   </div>
 
                   <div className="col-12 col-md-auto text-md-end">
