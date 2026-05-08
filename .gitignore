@@ -1,5 +1,11 @@
 # Variaveis de ambiente
 .env
+backend/.env
+
+# Dependencias e build do frontend
+node_modules/
+dist/
+.vite/
 
 # Anotações e documentos relacionados ao projeto
 /docs
@@ -8,5 +14,5 @@
 /docker-compose.yml
 
 # Arquivos para subida da base e tabelas para desenvolvimento local
-/db/database.sql
-/db/run.sh
+/backend/db/database.sql
+/backend/db/run.sh

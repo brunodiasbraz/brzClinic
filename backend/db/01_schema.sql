@@ -87,8 +87,10 @@ DELIMITER ;
 CREATE VIEW vw_relatorio_financeiro AS
 SELECT
   c.id AS consulta_id,
+  p.id AS paciente_id,
   p.nome AS paciente,
   p.cpf,
+  m.id AS medico_id,
   m.nome AS medico,
   m.especialidade,
   c.data_consulta,
@@ -101,8 +103,10 @@ JOIN medico m ON m.id = c.medico_id
 LEFT JOIN pagamento pg ON pg.consulta_id = c.id
 GROUP BY
   c.id,
+  p.id,
   p.nome,
   p.cpf,
+  m.id,
   m.nome,
   m.especialidade,
   c.data_consulta,

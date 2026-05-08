@@ -1,0 +1,134 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+import NewPacientModal from "./NewPacientModal";
+
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3002/api";
+
+export default function Navbar({
+  selectedPacient,
+  setSelectedPacient,
+  selectedDoctor,
+  setSelectedDoctor,
+  goToLogin,
+}) {
+  const [pacients, setPacients] = useState([]);
+  const [doctors, setDoctors] = useState([]);
+
+  const location = useLocation();
+
+  const fetchPacients = async () => {
+    try {
+      const { data } = await axios.get(`${apiUrl}/pacientes`);
+      setPacients(data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchDoctors = async () => {
+    try {
+      const { data } = await axios.get(`${apiUrl}/medicos`);
+      setDoctors(data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPacients();
+    fetchDoctors();
+  }, []);
+
+  const handleSelectPacient = (e) => {
+    const id = Number(e.target.value);
+
+    setSelectedPacient(id);
+    localStorage.setItem("pacientId", id);
+  };
+
+  const handleSelectDoctor = (e) => {
+    const id = Number(e.target.value);
+
+    setSelectedDoctor(id);
+    localStorage.setItem("doctorId", id);
+  };
+
+  return (
+    <nav
+      className="navbar navbar-expand-lg"
+      style={{ backgroundColor: "#ffffff" }}
+    >
+      <div className="container-fluid">
+        <a className="navbar-brand" href="#">
+          {" "}
+          <img
+            src="/assets/logos/logo-fundo-branco-lateral.png"
+            alt="logo"
+            width="150"
+            height="auto"
+          />
+        </a>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarContent"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div
+          className="collapse navbar-collapse justify-content-center"
+          id="navbarContent"
+        >
+          <div
+            className="d-flex flex-column flex-lg-row gap-2 w-100 justify-content-center"
+            style={{ maxWidth: "500px" }}
+          >
+            <select
+              className="form-select"
+              value={selectedPacient || ""}
+              onChange={handleSelectPacient}
+            >
+              <option value="">Escolha um paciente</option>
+              {pacients.map((pacient) => (
+                <option key={pacient.id} value={pacient.id}>
+                  {pacient.nome}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="form-select"
+              value={selectedDoctor || ""}
+              onChange={handleSelectDoctor}
+            >
+              <option value="">Escolha um médico</option>
+              {doctors.map((doctor) => (
+                <option key={doctor.id} value={doctor.id}>
+                  {doctor.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {location.pathname !== "/" ? (
+          <button type="button" className="btn btn-light" onClick={goToLogin}>
+            Logout
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#newPacientModal"
+          >
+            + Novo Paciente
+          </button>
+        )}
+      </div>
+      <NewPacientModal onPacientCreated={fetchPacients} />
+    </nav>
+  );
+}
