@@ -10,10 +10,8 @@ export class MedicoRepository {
         return new Medico(
             row.id,
             row.nome,
-            row.crm,
             row.especialidade,
-            row.telefone,
-            row.email
+            row.crm
         );
     }
 
@@ -31,10 +29,8 @@ export class MedicoRepository {
     async criar(medico) {
         const id = await this.db.inserir(this.tabela, {
             nome: medico.nome,
-            crm: medico.crm,
             especialidade: medico.especialidade,
-            telefone: medico.telefone,
-            email: medico.email
+            crm: medico.crm
         });
 
         return id;
@@ -43,10 +39,8 @@ export class MedicoRepository {
     async atualizar(id, medico) {
         return await this.db.atualizar(this.tabela, id, {
             nome: medico.nome,
-            crm: medico.crm,
             especialidade: medico.especialidade,
-            telefone: medico.telefone,
-            email: medico.email
+            crm: medico.crm
         });
     }
 

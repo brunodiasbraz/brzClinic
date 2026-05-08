@@ -6,7 +6,7 @@ import PatientScreen from "./pages/PatientScreen";
 import Navbar from "./components/Navbar";
 import axios from "axios";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3002/api";
 
 export default function App() {
   const navigate = useNavigate();
@@ -19,10 +19,35 @@ export default function App() {
 
   const addAppointment = async (appointment) => {
     try {
-      await axios.post(`${apiUrl}/consultas`, appointment);
-      setAppointments((current) => [...current, appointment]);
+      const { data } = await axios.post(`${apiUrl}/consultas`, appointment);
+      if (selectedPacient) await fetchAppointments(selectedPacient);
+      if (selectedDoctor) await fetchAppointmentsForDoctor(selectedDoctor);
+      return data;
     } catch (error) {
       console.error("Erro ao agendar consulta:", error);
+      throw error;
+    }
+  };
+
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      await axios.patch(`${apiUrl}/consultas/${appointmentId}/cancelar`);
+      if (selectedPacient) await fetchAppointments(selectedPacient);
+      if (selectedDoctor) await fetchAppointmentsForDoctor(selectedDoctor);
+    } catch (error) {
+      console.error("Erro ao cancelar consulta:", error);
+      throw error;
+    }
+  };
+
+  const finishAppointment = async (appointmentId, payload) => {
+    try {
+      await axios.patch(`${apiUrl}/consultas/${appointmentId}/encerrar`, payload);
+      if (selectedPacient) await fetchAppointments(selectedPacient);
+      if (selectedDoctor) await fetchAppointmentsForDoctor(selectedDoctor);
+    } catch (error) {
+      console.error("Erro ao encerrar consulta:", error);
+      throw error;
     }
   };
 
@@ -52,7 +77,7 @@ export default function App() {
 
     try {
       const res = await axios.get(`${apiUrl}/medicos/${doctorId}/consultas`);
-      setAppointmentsDoctor(res.data);
+      setAppointmentsDoctor(res.data.data);
     } catch (err) {
       console.log("Erro ao buscar consultas para médico:", err);
     }
@@ -111,6 +136,7 @@ export default function App() {
               <PatientScreen
                 appointments={appointments}
                 onAddAppointment={addAppointment}
+                onCancelAppointment={cancelAppointment}
                 onLogout={goToLogin}
                 selectedPacient={selectedPacient}
               />
@@ -126,6 +152,7 @@ export default function App() {
             selectedDoctor ? (
               <DoctorScreen
                 appointments={appointmentsDoctor}
+                onFinishAppointment={finishAppointment}
                 onLogout={goToLogin}
               />
             ) : (

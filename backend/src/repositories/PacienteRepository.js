@@ -52,6 +52,7 @@ export class PacienteRepository {
       telefone: paciente.telefone,
       email: paciente.email,
       cpf: paciente.cpf,
+      plano_saude_id: paciente.planoSaudeId,
     });
   }
 

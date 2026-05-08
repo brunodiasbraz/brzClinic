@@ -7,7 +7,7 @@ import {
 } from "../utils/formatters";
 import axios from "axios";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3002/api";
 
 const emptyForm = {
   date: "",
@@ -86,7 +86,7 @@ export default function AppointmentModal({ appointments, onAddAppointment }) {
     fetchPacientData(pacientId);
   }, []);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const error = validateAppointment(form);
@@ -95,22 +95,37 @@ export default function AppointmentModal({ appointments, onAddAppointment }) {
       return;
     }
 
+    if (!selectedDoctorAppointment) {
+      setMessage({ type: "danger", text: "Escolha o médico para confirmar o agendamento." });
+      return;
+    }
+
     const appointment = {
-      paciente_id: pacientId,
-      medico_id: selectedDoctorAppointment
-        ? Number(selectedDoctorAppointment)
-        : null,
-      data_consulta: `${form.date} ${form.time}`,
+      pacienteId: Number(pacientId),
+      medicoId: Number(selectedDoctorAppointment),
+      dataConsulta: `${form.date} ${form.time}:00`,
       valor: 250,
-      status: "AGENDADA",
     };
 
-    onAddAppointment(appointment);
-    setMessage({
-      type: "success",
-      text: `Agendamento confirmado para ${formatDate(form.date)} as ${form.time}.`,
-    });
-    setForm(emptyForm);
+    try {
+      await onAddAppointment(appointment);
+      setMessage({
+        type: "success",
+        text: `Agendamento confirmado para ${formatDate(form.date)} as ${form.time}.`,
+      });
+      setForm((current) => ({
+        ...emptyForm,
+        name: current.name,
+        phone: current.phone,
+        email: current.email,
+      }));
+      setSelectedDoctorAppointment("");
+    } catch (error) {
+      setMessage({
+        type: "danger",
+        text: error.response?.data?.message || "Não foi possível confirmar o agendamento.",
+      });
+    }
   }
 
   return (

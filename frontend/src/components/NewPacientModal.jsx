@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { IMaskInput } from "react-imask";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3002/api";
 
 const emptyForm = {
   name: "",
@@ -14,7 +14,7 @@ const emptyForm = {
   healthPlan: "",
 };
 
-export default function NewPacientModal() {
+export default function NewPacientModal({ onPacientCreated }) {
   const [planoSaude, setPlanoSaude] = useState([]);
   const [form, setForm] = useState(emptyForm);
 
@@ -45,6 +45,7 @@ export default function NewPacientModal() {
     try {
       await axios.post(`${apiUrl}/pacientes`, payload);
       setForm(emptyForm);
+      onPacientCreated?.();
       alert("Paciente cadastrado com sucesso!");
     } catch (error) {
       console.error("Erro ao cadastrar paciente:", error);

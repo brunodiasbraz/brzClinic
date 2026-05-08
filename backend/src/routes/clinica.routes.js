@@ -10,11 +10,14 @@ export function criarRotasClinica(sistemaClinica) {
     .post("/pacientes", (req, res) => controller.cadastrarPaciente(req, res))
     .get("/pacientes", (req, res) => controller.obterPacientes(req, res))
     .get("/pacientes/:id", (req, res) => controller.obterPacientePorId(req, res))
-    .get("/pacientes/:id/consultas", (req, res) => controller.obterConsultasPorPaciente(req, res))
+    .get("/pacientes/:id/consultas", (req, res) => controller.obterConsultasPorPaciente(req, res));
 
   // Rotas de Médicos
   router.post("/medicos", (req, res) => controller.cadastrarMedico(req, res));
   router.get("/medicos", (req, res) => controller.obterMedicos(req, res));
+  router.get("/medicos/:id/consultas", (req, res) =>
+    controller.obterConsultasPorMedico(req, res),
+  );
 
   // Rotas de Planos
   router.get("/planos", (req, res) => controller.obterPlanos(req, res));
@@ -33,6 +36,12 @@ export function criarRotasClinica(sistemaClinica) {
   router.get("/consultas", (req, res) => controller.obterConsultas(req, res));
   router.get("/consultas/agendadas", (req, res) =>
     controller.obterConsultasAgendadas(req, res),
+  );
+  router.patch("/consultas/:id/cancelar", (req, res) =>
+    controller.cancelarConsulta(req, res),
+  );
+  router.patch("/consultas/:id/encerrar", (req, res) =>
+    controller.encerrarConsulta(req, res),
   );
 
   // Rotas de Pagamentos

@@ -1,75 +1,40 @@
+import { Medico } from "../models/Medico.js";
 import { Paciente } from "../models/Paciente.js";
 import { PlanoSaude } from "../models/PlanoSaude.js";
-import { Medico } from "../models/Medico.js";
-import { Pagamento } from "../models/Pagamento.js";
 
 export class ClinicaController {
   constructor(sistemaClinica) {
     this.sistema = sistemaClinica;
   }
 
+  responderErro(res, error, status = 500) {
+    res.status(status).json({
+      success: false,
+      message: error.message,
+    });
+  }
+
   async obterPacientes(req, res) {
     try {
       const pacientes = await this.sistema.obterPacientes();
-      res.status(200).json({
-        success: true,
-        data: pacientes,
-      });
+      res.status(200).json({ success: true, data: pacientes });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error);
     }
   }
 
   async obterPacientePorId(req, res) {
     try {
       const paciente = await this.sistema.obterPacientePorId(req.params.id);
-      if (!paciente) {
-        return res.status(404).json({
-          success: false,
-          message: "Paciente não encontrado",
-        });
-      }
-      res.status(200).json({
-        success: true,
-        data: paciente,
-      });
+      res.status(200).json({ success: true, data: paciente });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 404);
     }
   }
 
-  async obterConsultasPorPaciente(req, res) {
-    try {
-      const paciente = await this.sistema.obterPacientePorId(req.params.id);
-      if (!paciente) {
-        return res.status(404).json({
-          success: false,
-          message: "Paciente não encontrado",
-        });
-      }
-      const consultas = await this.sistema.obterConsultasPorPaciente(paciente.id);
-      res.status(200).json({
-        success: true,
-        data: consultas,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  }
-  
-  cadastrarPaciente(req, res) {
+  async cadastrarPaciente(req, res) {
     try {
       const {
-        id,
         nome,
         endereco,
         dataNascimento,
@@ -79,42 +44,47 @@ export class ClinicaController {
         planoSaudeId,
       } = req.body;
 
-      if (!nome || !email || !cpf || !planoSaudeId) {
+      if (!nome || !telefone || !email || !cpf || !planoSaudeId) {
         return res.status(400).json({
           success: false,
-          message: "Nome, email, CPF e ID do plano de saúde são obrigatórios",
+          message: "Nome, telefone, email, CPF e plano de saúde são obrigatórios",
         });
       }
 
       const paciente = new Paciente(
-        id,
+        null,
         nome,
         endereco,
         dataNascimento,
         telefone,
         email,
         cpf,
-        planoSaudeId
+        planoSaudeId,
       );
-
-      this.sistema.cadastrarPaciente(paciente);
+      const pacienteCriado = await this.sistema.cadastrarPaciente(paciente);
 
       res.status(201).json({
         success: true,
         message: "Paciente cadastrado com sucesso",
-        data: paciente,
+        data: pacienteCriado,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 400);
     }
   }
 
-  cadastrarMedico(req, res) {
+  async obterMedicos(req, res) {
     try {
-      const { id, nome, especialidade, crm } = req.body;
+      const medicos = await this.sistema.obterMedicos();
+      res.status(200).json({ success: true, data: medicos });
+    } catch (error) {
+      this.responderErro(res, error);
+    }
+  }
+
+  async cadastrarMedico(req, res) {
+    try {
+      const { nome, especialidade, crm } = req.body;
 
       if (!nome || !especialidade || !crm) {
         return res.status(400).json({
@@ -123,67 +93,93 @@ export class ClinicaController {
         });
       }
 
-      const medico = new Medico(id, nome, especialidade, crm);
-      this.sistema.cadastrarMedico(medico);
+      const medico = new Medico(null, nome, especialidade, crm);
+      const medicoCriado = await this.sistema.cadastrarMedico(medico);
 
       res.status(201).json({
         success: true,
         message: "Médico cadastrado com sucesso",
-        data: medico,
+        data: medicoCriado,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 400);
     }
   }
 
-  cadastrarPlano(req, res) {
+  async obterPlanos(req, res) {
     try {
-      const { id, nome, limiteCobertura, dataValidade } = req.body;
+      const planos = await this.sistema.obterPlanos();
+      res.status(200).json({ success: true, data: planos });
+    } catch (error) {
+      this.responderErro(res, error);
+    }
+  }
+
+  async obterPlanoPorId(req, res) {
+    try {
+      const plano = await this.sistema.obterPlanoPorId(req.params.id);
+      res.status(200).json({ success: true, data: plano });
+    } catch (error) {
+      this.responderErro(res, error, 404);
+    }
+  }
+
+  async cadastrarPlano(req, res) {
+    try {
+      const { nome, limiteCobertura, dataValidade } = req.body;
 
       if (!nome || !limiteCobertura || !dataValidade) {
         return res.status(400).json({
           success: false,
-          message:
-            "Nome, limite de cobertura e data de validade são obrigatórios",
+          message: "Nome, limite de cobertura e data de validade são obrigatórios",
         });
       }
 
-      const plano = new PlanoSaude(id, nome, limiteCobertura, dataValidade);
-      this.sistema.cadastrarPlano(plano);
+      const plano = new PlanoSaude(null, nome, limiteCobertura, dataValidade);
+      const planoCriado = await this.sistema.cadastrarPlano(plano);
 
       res.status(201).json({
         success: true,
         message: "Plano cadastrado com sucesso",
-        data: plano,
+        data: planoCriado,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 400);
     }
   }
 
-  vincularPlano(req, res) {
+  async atualizarPlano(req, res) {
+    try {
+      await this.sistema.atualizarPlano(req.params.id, req.body);
+      const plano = await this.sistema.obterPlanoPorId(req.params.id);
+      res.status(200).json({
+        success: true,
+        message: "Plano atualizado com sucesso",
+        data: plano,
+      });
+    } catch (error) {
+      this.responderErro(res, error, 400);
+    }
+  }
+
+  async validarPlano(req, res) {
+    try {
+      const { planoId, valorConsulta, dataConsulta } = req.body;
+      const validacao = await this.sistema.validarPlanoParaConsulta(
+        planoId,
+        valorConsulta,
+        dataConsulta,
+      );
+      res.status(200).json({ success: true, data: validacao });
+    } catch (error) {
+      this.responderErro(res, error, 400);
+    }
+  }
+
+  async vincularPlano(req, res) {
     try {
       const { pacienteId, planoId } = req.body;
-
-      const paciente = this.sistema
-        .obterPacientes()
-        .find((p) => p.id === pacienteId);
-      const plano = this.sistema.obterPlanos().find((p) => p.id === planoId);
-
-      if (!paciente || !plano) {
-        return res.status(404).json({
-          success: false,
-          message: "Paciente ou plano não encontrado",
-        });
-      }
-
-      paciente.vincularPlano(plano);
+      const paciente = await this.sistema.vincularPlano(pacienteId, planoId);
 
       res.status(200).json({
         success: true,
@@ -191,326 +187,141 @@ export class ClinicaController {
         data: paciente,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 400);
     }
   }
 
-  async obterPacientes(req, res) {
+  async agendarConsulta(req, res) {
     try {
-      const pacientes = await this.sistema.obterPacientes();
-      res.status(200).json({
-        success: true,
-        data: pacientes,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  }
+      const pacienteId = req.body.pacienteId || req.body.paciente_id;
+      const medicoId = req.body.medicoId || req.body.medico_id;
+      const dataConsulta = req.body.dataConsulta || req.body.data_consulta || req.body.data;
+      const valor = req.body.valor;
 
-  obterMedicos(req, res) {
-    try {
-      const medicos = this.sistema.obterMedicos();
-      res.status(200).json({
-        success: true,
-        data: medicos,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  }
-
-  async obterPlanos(req, res) {
-    try {
-      const planos = await this.sistema.obterPlanos();
-      res.status(200).json({
-        success: true,
-        data: planos,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  }
-
-  async obterPlanoPorId(req, res) {
-    try {
-      const plano = await this.sistema.obterPlanoPorId(req.params.id);
-      res.status(200).json({
-        success: true,
-        data: plano,
-      });
-    } catch (error) {
-      res.status(404).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  }
-
-  agendarConsulta(req, res) {
-    try {
-      const { pacienteId, medicoId, data, valor } = req.body;
-
-      const paciente = this.sistema
-        .obterPacientes()
-        .find((p) => p.id === pacienteId);
-      const medico = this.sistema.obterMedicos().find((m) => m.id === medicoId);
-
-      if (!paciente || !medico) {
-        return res.status(404).json({
+      if (!pacienteId || !medicoId || !dataConsulta || !valor) {
+        return res.status(400).json({
           success: false,
-          message: "Paciente ou médico não encontrado",
+          message: "Paciente, médico, data e valor são obrigatórios",
         });
       }
 
-      const consulta = this.sistema.agendarConsulta(
-        paciente,
-        medico,
-        data,
+      const consulta = await this.sistema.agendarConsulta({
+        pacienteId,
+        medicoId,
+        dataConsulta,
         valor,
-      );
+      });
 
       res.status(201).json({
         success: true,
         message: "Consulta agendada com sucesso",
-        data: {
-          id: consulta.id,
-          data: consulta.data,
-          valor: consulta.valor,
-          status: consulta.status,
-          paciente: {
-            id: paciente.id,
-            nome: paciente.nome,
-            email: paciente.email,
-          },
-          medico: {
-            id: medico.id,
-            nome: medico.nome,
-            especialidade: medico.especialidade,
-          },
-        },
+        data: consulta,
       });
     } catch (error) {
-      res.status(400).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 400);
     }
   }
 
-  obterConsultas(req, res) {
+  async obterConsultas(req, res) {
     try {
-      const consultas = this.sistema.obterConsultas().map((c) => ({
-        id: c.id,
-        data: c.data,
-        valor: c.valor,
-        status: c.status,
-        paciente: {
-          id: c.paciente.id,
-          nome: c.paciente.nome,
-          email: c.paciente.email,
-          cpf: c.paciente.cpf,
-        },
-        medico: {
-          id: c.medico.id,
-          nome: c.medico.nome,
-          especialidade: c.medico.especialidade,
-          crm: c.medico.crm,
-        },
-        receita: c.receita
-          ? {
-              id: c.receita.id,
-              descricao: c.receita.descricao,
-              dosagem: c.receita.dosagem,
-              tempoTratamento: c.receita.tempoTratamento,
-              emitida: c.receita.emitida,
-            }
-          : null,
-        pagamentos: c.pagamentos.map((p) => ({
-          id: p.id,
-          valor: p.valor,
-          dataPagamento: p.dataPagamento,
-        })),
-      }));
+      const consultas = await this.sistema.obterConsultas();
+      res.status(200).json({ success: true, data: consultas });
+    } catch (error) {
+      this.responderErro(res, error);
+    }
+  }
+
+  async obterConsultasAgendadas(req, res) {
+    try {
+      const consultas = await this.sistema.obterConsultasAgendadas();
+      res.status(200).json({ success: true, data: consultas });
+    } catch (error) {
+      this.responderErro(res, error);
+    }
+  }
+
+  async obterConsultasPorPaciente(req, res) {
+    try {
+      const consultas = await this.sistema.obterConsultasPorPaciente(req.params.id);
+      res.status(200).json({ success: true, data: consultas });
+    } catch (error) {
+      this.responderErro(res, error, 404);
+    }
+  }
+
+  async obterConsultasPorMedico(req, res) {
+    try {
+      const consultas = await this.sistema.obterConsultasPorMedico(req.params.id);
+      res.status(200).json({ success: true, data: consultas });
+    } catch (error) {
+      this.responderErro(res, error, 404);
+    }
+  }
+
+  async cancelarConsulta(req, res) {
+    try {
+      const consulta = await this.sistema.cancelarConsulta(req.params.id);
       res.status(200).json({
         success: true,
-        data: consultas,
+        message: "Consulta cancelada com sucesso",
+        data: consulta,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 400);
     }
   }
 
-  obterConsultasAgendadas(req, res) {
+  async encerrarConsulta(req, res) {
     try {
-      const consultas = this.sistema.obterConsultasAgendadas().map((c) => ({
-        id: c.id,
-        data: c.data,
-        valor: c.valor,
-        status: c.status,
-        paciente: {
-          id: c.paciente.id,
-          nome: c.paciente.nome,
-          email: c.paciente.email,
-          cpf: c.paciente.cpf,
-        },
-        medico: {
-          id: c.medico.id,
-          nome: c.medico.nome,
-          especialidade: c.medico.especialidade,
-          crm: c.medico.crm,
-        },
-        receita: c.receita
-          ? {
-              id: c.receita.id,
-              descricao: c.receita.descricao,
-              dosagem: c.receita.dosagem,
-              tempoTratamento: c.receita.tempoTratamento,
-              emitida: c.receita.emitida,
-            }
-          : null,
-        pagamentos: c.pagamentos.map((p) => ({
-          id: p.id,
-          valor: p.valor,
-          dataPagamento: p.dataPagamento,
-        })),
-      }));
+      const consulta = await this.sistema.encerrarConsulta({
+        consultaId: req.params.id,
+        ...req.body,
+      });
+
       res.status(200).json({
         success: true,
-        data: consultas,
+        message: "Consulta encerrada com sucesso",
+        data: consulta,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 400);
     }
   }
 
-  registrarPagamento(req, res) {
+  async registrarPagamento(req, res) {
     try {
-      const { consultaId, valor, dataPagamento } = req.body;
-
-      const consulta = this.sistema
-        .obterConsultas()
-        .find((c) => c.id === consultaId);
-
-      if (!consulta) {
-        return res.status(404).json({
-          success: false,
-          message: "Consulta não encontrada",
-        });
-      }
-
-      const pagamento = new Pagamento(1, valor, dataPagamento, consulta);
-      pagamento.registrar();
-
+      const pagamento = await this.sistema.registrarPagamento(req.body);
       res.status(201).json({
         success: true,
         message: "Pagamento registrado com sucesso",
-        data: {
-          pagamentoId: pagamento.id,
-          valor: pagamento.valor,
-          dataPagamento: pagamento.dataPagamento,
-          consultaId: consulta.id,
-          statusConsulta: consulta.status,
-        },
+        data: pagamento,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 400);
     }
   }
 
-  emitirReceita(req, res) {
+  async emitirReceita(req, res) {
     try {
-      const { consultaId, descricao, dosagem, tempoTratamento } = req.body;
-
-      const consulta = this.sistema
-        .obterConsultas()
-        .find((c) => c.id === consultaId);
-
-      if (!consulta) {
-        return res.status(404).json({
-          success: false,
-          message: "Consulta não encontrada",
-        });
-      }
-
-      const receita = consulta.medico.emitirReceita(
-        consulta,
-        descricao,
-        dosagem,
-        tempoTratamento,
-      );
-
+      const consulta = await this.sistema.emitirReceita(req.body);
       res.status(201).json({
         success: true,
         message: "Receita emitida com sucesso",
-        data: {
-          id: receita.id,
-          descricao: receita.descricao,
-          dosagem: receita.dosagem,
-          tempoTratamento: receita.tempoTratamento,
-          emitida: receita.emitida,
-          medico: {
-            id: receita.medico.id,
-            nome: receita.medico.nome,
-            especialidade: receita.medico.especialidade,
-          },
-        },
+        data: consulta,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error, 400);
     }
   }
 
-  gerarRelatorioFinanceiro(req, res) {
+  async gerarRelatorioFinanceiro(req, res) {
     try {
-      const relatorio = this.sistema.gerarRelatorioFinanceiro();
-      res.status(200).json({
-        success: true,
-        data: relatorio,
-      });
+      const relatorio = await this.sistema.gerarRelatorioFinanceiro(
+        req.query.medicoId || null,
+      );
+      res.status(200).json({ success: true, data: relatorio });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  }
-
-  async obterMedicos(req, res) {
-    try {
-      const medicos = await this.sistema.obterMedicos();
-      res.status(200).json({
-        success: true,
-        data: medicos,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      this.responderErro(res, error);
     }
   }
 }

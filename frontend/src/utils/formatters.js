@@ -8,6 +8,8 @@ export function getWeekdayFromDate(dateValue) {
 }
 
 export function formatDate(dateValue) {
+  if (!dateValue) return "";
+
   const [year, month, day] = dateValue.split("-");
   return `${day}/${month}/${year}`;
 }
@@ -20,7 +22,12 @@ export function formatCurrency(value) {
 }
 
 export function formatDateTime(dateTimeValue) {
-  const [datePart, timePart] = dateTimeValue.split(" ");
+  if (!dateTimeValue) {
+    return { date: "", time: "" };
+  }
+
+  const normalized = dateTimeValue.replace("T", " ");
+  const [datePart, timePart = "00:00"] = normalized.split(" ");
   const [year, month, day] = datePart.split("-");
   const [hour, minute] = timePart.split(":");
 

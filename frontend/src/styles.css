@@ -211,6 +211,36 @@ h6 {
   gap: 12px;
 }
 
+.finish-form {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.empty-state {
+  padding: 18px;
+  color: var(--muted);
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.report-panel {
+  grid-column: 1 / -1;
+}
+
+.report-table th {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.report-table td span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
 
 .modal-content {
   border: 0;

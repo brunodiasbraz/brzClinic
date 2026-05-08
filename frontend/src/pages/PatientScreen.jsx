@@ -1,11 +1,12 @@
 import AppointmentModal from "../components/AppointmentModal";
 import Header from "../components/Header";
 import StatusBadge from "../components/StatusBadge";
-import { formatCurrency, formatDate, formatDateTime } from "../utils/formatters";
+import { formatCurrency, formatDateTime } from "../utils/formatters";
 
 export default function PatientScreen({
   appointments,
   onAddAppointment,
+  onCancelAppointment,
 }) {
   const scheduled = appointments.filter(
     (appointment) => appointment.status.toLowerCase() === "agendada",
@@ -73,6 +74,16 @@ export default function PatientScreen({
 
                   <div className="col-12 col-md-auto text-md-end">
                     <StatusBadge status={appointment.status} />
+                  </div>
+
+                  <div className="col-12 col-md-auto text-md-end">
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => onCancelAppointment(appointment.id)}
+                    >
+                      Cancelar
+                    </button>
                   </div>
                 </div>
               </article>

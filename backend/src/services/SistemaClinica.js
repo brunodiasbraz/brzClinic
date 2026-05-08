@@ -1,6 +1,3 @@
-import { Consulta } from "../models/Consulta.js";
-import { PlanoSaude } from "../models/PlanoSaude.js";
-import { RelatorioFinanceiro } from "../models/RelatorioFinanceiro.js";
 import { ConsultaRepository } from "../repositories/ConsultaRepository.js";
 import { MedicoRepository } from "../repositories/MedicoRepository.js";
 import { PacienteRepository } from "../repositories/PacienteRepository.js";
@@ -11,40 +8,23 @@ export class SistemaClinica {
     this.db = db;
     this.planoRepo = new PlanoSaudeRepository(db);
     this.pacienteRepo = new PacienteRepository(db);
-    this.madicoRepo = new MedicoRepository(db);
+    this.medicoRepo = new MedicoRepository(db);
     this.consultaRepo = new ConsultaRepository(db);
   }
 
   async cadastrarPaciente(paciente) {
-    return await this.pacienteRepo.criar(paciente);
+    const id = await this.pacienteRepo.criar(paciente);
+    return await this.pacienteRepo.buscarPorId(id);
   }
 
   async cadastrarMedico(medico) {
-    return await this.madicoRepo.criar(medico);
+    const id = await this.medicoRepo.criar(medico);
+    return await this.medicoRepo.buscarPorId(id);
   }
 
-  async cadastrarPlano(dados) {
-    const plano = new PlanoSaude(
-      null,
-      dados.nome,
-      dados.limiteCobertura,
-      dados.dataValidade,
-    );
-
-    return await this.planoRepo.criar(plano);
-  }
-
-  agendarConsulta(paciente, medico, data, valor) {
-    const consulta = new Consulta(
-      this.consultas.length + 1,
-      data,
-      valor,
-      paciente,
-      medico,
-    );
-    consulta.agendar();
-    this.consultas.push(consulta);
-    return consulta;
+  async cadastrarPlano(plano) {
+    const id = await this.planoRepo.criar(plano);
+    return await this.planoRepo.buscarPorId(id);
   }
 
   async obterPacientes() {
@@ -58,7 +38,13 @@ export class SistemaClinica {
   }
 
   async obterMedicos() {
-    return await this.madicoRepo.buscarTodos();
+    return await this.medicoRepo.buscarTodos();
+  }
+
+  async obterMedicoPorId(id) {
+    const medico = await this.medicoRepo.buscarPorId(id);
+    if (!medico) throw new Error("Médico não encontrado");
+    return medico;
   }
 
   async obterPlanos() {
@@ -72,23 +58,19 @@ export class SistemaClinica {
   }
 
   async validarPlanoParaConsulta(planoId, valorConsulta, dataConsulta) {
-    const plano = await this.planoRepo.buscarPorId(planoId);
-
-    if (!plano) {
-      throw new Error("Plano não encontrado");
-    }
+    const plano = await this.obterPlanoPorId(planoId);
 
     if (!plano.validarPlano(dataConsulta)) {
       return {
         valido: false,
-        motivo: "Plano vencido",
+        motivo: "Plano de saúde vencido",
       };
     }
 
-    if (!plano.cobreValor(valorConsulta)) {
+    if (!plano.cobreValor(Number(valorConsulta))) {
       return {
         valido: false,
-        motivo: "Valor excede cobertura",
+        motivo: "Valor da consulta excede o limite de cobertura do plano",
       };
     }
 
@@ -99,34 +81,144 @@ export class SistemaClinica {
   }
 
   async atualizarPlano(id, dados) {
-    const plano = new PlanoSaude(
-      id,
-      dados.nome,
-      dados.limiteCobertura,
-      dados.dataValidade,
-    );
-
-    return await this.planoRepo.atualizar(id, plano);
+    return await this.planoRepo.atualizar(id, dados);
   }
 
-  obterConsultas() {
-    return this.consultas;
+  async vincularPlano(pacienteId, planoId) {
+    await this.obterPlanoPorId(planoId);
+    const paciente = await this.obterPacientePorId(pacienteId);
+    paciente.vincularPlano({ id: planoId });
+    await this.pacienteRepo.atualizar(pacienteId, paciente);
+    return await this.obterPacientePorId(pacienteId);
+  }
+
+  async agendarConsulta({ pacienteId, medicoId, dataConsulta, valor }) {
+    const paciente = await this.obterPacientePorId(pacienteId);
+    await this.obterMedicoPorId(medicoId);
+
+    if (!paciente.planoSaudeId) {
+      throw new Error("Paciente sem plano de saúde vinculado");
+    }
+
+    const validacaoPlano = await this.validarPlanoParaConsulta(
+      paciente.planoSaudeId,
+      valor,
+      dataConsulta,
+    );
+
+    if (!validacaoPlano.valido) {
+      throw new Error(validacaoPlano.motivo);
+    }
+
+    const horarioOcupado = await this.consultaRepo.existeHorarioOcupado(
+      medicoId,
+      dataConsulta,
+    );
+
+    if (horarioOcupado) {
+      throw new Error("Já existe consulta agendada para este médico neste horário");
+    }
+
+    return await this.consultaRepo.criar({
+      pacienteId,
+      medicoId,
+      dataConsulta,
+      valor,
+    });
+  }
+
+  async obterConsultas() {
+    return await this.consultaRepo.buscarTodos();
+  }
+
+  async obterConsultaPorId(id) {
+    const consulta = await this.consultaRepo.buscarPorId(id);
+    if (!consulta) throw new Error("Consulta não encontrada");
+    return consulta;
   }
 
   async obterConsultasPorPaciente(pacienteId) {
-    return await this.consultaRepo.obterConsultasPorPaciente(pacienteId);
+    await this.obterPacientePorId(pacienteId);
+    return await this.consultaRepo.buscarPorPaciente(pacienteId);
   }
 
-  obterConsultasAgendadas() {
-    return this.consultas.filter((c) => c.status === "Agendada");
+  async obterConsultasPorMedico(medicoId) {
+    await this.obterMedicoPorId(medicoId);
+    return await this.consultaRepo.buscarPorMedico(medicoId);
   }
 
-  gerarRelatorioFinanceiro() {
-    const relatorio = new RelatorioFinanceiro(
-      1,
-      new Date().toLocaleDateString("pt-BR"),
-      this.consultas,
-    );
-    return relatorio.gerarRelatorio();
+  async obterConsultasAgendadas() {
+    return await this.consultaRepo.buscarAgendadas();
+  }
+
+  async cancelarConsulta(id) {
+    const consulta = await this.obterConsultaPorId(id);
+    if (consulta.status === "REALIZADA") {
+      throw new Error("Consultas realizadas não podem ser canceladas");
+    }
+
+    return await this.consultaRepo.atualizarStatus(id, "CANCELADA");
+  }
+
+  async registrarPagamento({ consultaId, valor, dataPagamento }) {
+    await this.obterConsultaPorId(consultaId);
+    return await this.consultaRepo.registrarPagamento({
+      consultaId,
+      valor,
+      dataPagamento,
+    });
+  }
+
+  async emitirReceita({ consultaId, descricao, dosagem, tempoTratamento }) {
+    const consulta = await this.obterConsultaPorId(consultaId);
+    await this.consultaRepo.emitirReceita({
+      consultaId,
+      medicoId: consulta.medico.id,
+      descricao,
+      dosagem,
+      tempoTratamento,
+    });
+
+    return await this.obterConsultaPorId(consultaId);
+  }
+
+  async encerrarConsulta({
+    consultaId,
+    valorPagamento,
+    dataPagamento,
+    descricao,
+    dosagem,
+    tempoTratamento,
+  }) {
+    const consulta = await this.obterConsultaPorId(consultaId);
+
+    if (consulta.status !== "AGENDADA") {
+      throw new Error("Apenas consultas agendadas podem ser encerradas");
+    }
+
+    const pagamento = Number(valorPagamento || consulta.saldo || consulta.valor);
+    if (pagamento > 0) {
+      await this.registrarPagamento({
+        consultaId,
+        valor: pagamento,
+        dataPagamento: dataPagamento || new Date().toISOString().split("T")[0],
+      });
+    }
+
+    if (descricao && dosagem && tempoTratamento) {
+      await this.consultaRepo.emitirReceita({
+        consultaId,
+        medicoId: consulta.medico.id,
+        descricao,
+        dosagem,
+        tempoTratamento,
+      });
+    }
+
+    return await this.consultaRepo.atualizarStatus(consultaId, "REALIZADA");
+  }
+
+  async gerarRelatorioFinanceiro(medicoId = null) {
+    return await this.consultaRepo.gerarRelatorioFinanceiro(medicoId);
   }
 }

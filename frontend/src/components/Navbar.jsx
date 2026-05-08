@@ -3,7 +3,7 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import NewPacientModal from "./NewPacientModal";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3002/api";
 
 export default function Navbar({
   selectedPacient,
@@ -128,7 +128,7 @@ export default function Navbar({
           </button>
         )}
       </div>
-      <NewPacientModal />
+      <NewPacientModal onPacientCreated={fetchPacients} />
     </nav>
   );
 }

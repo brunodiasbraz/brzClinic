@@ -25,7 +25,8 @@ async function testarAPI() {
       dataNascimento: "1995-04-12",
       telefone: "(11) 99999-0000",
       email: "ana@email.com",
-      cpf: "123.456.789-00"
+      cpf: "123.456.789-00",
+      planoSaudeId: 1
     });
     console.log("✅ Paciente criado:", pacienteResponse.data.data);
 
